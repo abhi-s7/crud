@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "24961777264",
+    "project_id": "crud-virtuostack",
+    "storage_bucket": "crud-virtuostack.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:24961777264:android:f335be021c7d972f7dbeb5",
+        "android_client_info": {
+          "package_name": "com.crud"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "24961777264-gad78e0g7vng5rtap7p7vcn5jjiqqt41.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQ5woSFxiwBu6N-rL8l01XrQz2wUHVm0k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "24961777264-gad78e0g7vng5rtap7p7vcn5jjiqqt41.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
