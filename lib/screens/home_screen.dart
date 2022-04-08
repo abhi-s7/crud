@@ -1,25 +1,36 @@
 import 'package:crud/db/db.dart';
+import 'package:crud/screens/login_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../model/item.dart';
 import 'add_edit_item_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 class HomeScreen extends StatefulWidget {
-  final FirebaseApp app;
-  HomeScreen({Key key, this.app}) : super(key: key);
+  static const String id = 'home_screen';
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
   DbOperation dbOperation = new DbOperation();
+
+  @override
+  void initState() {
+    super.initState();
+    if (auth.currentUser == null) {
+      auth.signOut();
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => LoginScreen()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     bool isDissmissed = false;
-    Query query = dbOperation.fetchItems();
+    Query query = dbOperation.fetchItems(uid: auth.currentUser.uid);
     Widget buildSwipeActionLeft() => Container(
           alignment: Alignment.centerLeft,
           decoration: BoxDecoration(
@@ -42,12 +53,13 @@ class _HomeScreenState extends State<HomeScreen> {
             dismissThresholds: {DismissDirection.startToEnd: 0.5},
             direction: DismissDirection.startToEnd,
             background: buildSwipeActionLeft(),
-            onDismissed: (direction) {
+            onDismissed: (direction) async {
               if (direction == DismissDirection.startToEnd) {
                 //isDissmissed = !isDissmissed;
                 print('Update data: $item');
                 print('Swipe to right');
-                dbOperation.deleteItem(item: item);
+                await dbOperation.deleteItem(
+                    item: item, uid: auth.currentUser.uid);
               } else {}
             },
             child: Card(
@@ -104,7 +116,6 @@ class _HomeScreenState extends State<HomeScreen> {
                               builder: (context) => AddEditItemScreen(
                                     item: item,
                                     isEdit: true,
-                                    app: widget.app,
                                   ));
                           print(item);
                         },
@@ -117,10 +128,30 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
 
+    void handleClick(int item) {
+      switch (item) {
+        case 0:
+          auth.signOut();
+//          Navigator.push(
+//              context, MaterialPageRoute(builder: (context) => LoginScreen()));
+          Navigator.of(context).pushNamedAndRemoveUntil(
+              LoginScreen.id, (Route<dynamic> route) => false);
+          break;
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('ITEM', style: TextStyle(color: Colors.black)),
         backgroundColor: Color(0xfff3edf7),
+        actions: <Widget>[
+          PopupMenuButton<int>(
+            onSelected: (item) => handleClick(item),
+            itemBuilder: (context) => [
+              PopupMenuItem<int>(value: 0, child: Text('Logout')),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: SizedBox(
         height: 70,
@@ -137,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (context) => AddEditItemScreen(
                       item: null,
                       isEdit: false,
-                      app: widget.app,
+//                      app: widget.app,
                     ));
           },
         ),

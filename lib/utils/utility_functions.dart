@@ -10,7 +10,6 @@ class UtilityFunctions {
         await imagePicker.getImage(source: ImageSource.gallery);
     File imageFile = File(pickedFile.path);
     print("Image Path is $imageFile");
-
     return imageFile;
   }
 
@@ -27,7 +26,6 @@ class UtilityFunctions {
       downloadURL = 'Error: ' + err;
     });
 
-    print('After then error');
     return downloadURL;
   }
 }

@@ -1,10 +1,41 @@
+import 'package:crud/db/db.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 
+import 'home_screen.dart';
+
 class VerifyScreen extends StatelessWidget {
+  static const String id = 'verify_screen';
+  final verificationId;
+  static String code;
+  final DbOperation dbOperation = new DbOperation();
+
+  VerifyScreen({this.verificationId});
+
   @override
   Widget build(BuildContext context) {
     var media = MediaQuery.of(context).size;
+
+    _authenicateWithOTP() async {
+      print('Verification Id: $verificationId');
+      print('Code: $code');
+      FirebaseAuth auth = FirebaseAuth.instance;
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+          verificationId: verificationId, smsCode: code);
+
+      // Sign the user in (or link) with the credential
+      await auth.signInWithCredential(credential).then((value) {
+        print('Singin completed $value');
+
+        Navigator.of(context).pushNamedAndRemoveUntil(
+            HomeScreen.id, (Route<dynamic> route) => false);
+      }).catchError((error) {
+        print('Error: ${error.toString()}');
+        return null;
+      });
+    }
+
     return Scaffold(
       backgroundColor: Color(0xfff3edf7),
       body: Padding(
@@ -50,14 +81,8 @@ class VerifyScreen extends StatelessWidget {
                   },
                   //runs when every textfield is filled
                   onSubmit: (String verificationCode) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text("Verification Code"),
-                            content: Text('Code entered is $verificationCode'),
-                          );
-                        });
+                    code = verificationCode;
+                    print('Code is $code');
                   }, // end onSubmit
                 ),
               ],
@@ -72,8 +97,11 @@ class VerifyScreen extends StatelessWidget {
                 borderRadius: BorderRadius.all(Radius.circular(30.0)),
                 elevation: 5.0,
                 child: MaterialButton(
-                  onPressed: () {
+                  onPressed: () async {
                     //Implement login functionality.
+                    if (code != null && code.length == 6) {
+                      _authenicateWithOTP();
+                    }
                   },
                   minWidth: media.width / 3,
                   height: 32.0,
